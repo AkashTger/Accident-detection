@@ -1,0 +1,102 @@
+SMART HELMET - Vehicular Safety Monitoring System
+
+OVERVIEW:
+The SMART HELMET project aims to enhance road safety by integrating advanced sensors and real-time monitoring capabilities into a helmet-based system. It focuses on detecting driver impairment (e.g., due to alcohol consumption), analyzing vehicle dynamics, and providing timely alerts via a Telegram bot interface.
+
+KEY FEATURES:
+- Alcohol Sensor Detection
+- Accelerometer-based Accident Detection
+- GPS Location Tracking
+- Telegram Bot Alert & Control System
+- LCD Display for Onboard Feedback
+- Buzzer & Motor Relay for Physical Alerts and Vehicle Control
+
+
+ABSTRACT:
+This project develops an advanced vehicular safety monitoring system using sensor technologies such as accelerometers, alcohol sensors, and GPS modules. The system monitors driver conditions and vehicle movements in real-time to detect driver impairment and potential accidents. It uses a Telegram bot for remote alerts and control, aiming to improve road safety through proactive intervention mechanisms.
+
+PROBLEM STATEMENT:
+- Driver impairment due to alcohol consumption.
+- High risk of vehicular accidents without early detection systems.
+- Lack of real-time alerting and remote monitoring features in traditional helmets.
+
+SOLUTION:
+An intelligent helmet with embedded sensors that:
+- Detects alcohol levels before vehicle ignition.
+- Monitors sudden changes in motion to detect possible accidents.
+- Sends alerts via Telegram with GPS coordinates.
+- Controls vehicle engine operation to prevent impaired driving.
+
+HARDWARE COMPONENTS:
+- Arduino / ESP32 Microcontroller
+- Alcohol Sensor (MQ-3/MQ-9)
+- ADXL345 Accelerometer
+- GPS Module (Neo-6M)
+- LCD Display (16x2)
+- Buzzer
+- Motor Relay
+- Push Button
+- Resistors, Wires, Breadboard
+- Power Supply / Battery
+
+SOFTWARE TOOLS:
+- Arduino IDE
+- ESP32 Board Package (for ESP32 module)
+- Required Libraries:
+   - LiquidCrystal
+   - Adafruit_Sensor, Adafruit_ADXL345_U
+   - TinyGPS
+   - WiFi, UniversalTelegramBot, ArduinoJson (for Telegram integration)
+
+FUNCTIONALITY:
+
+1. System Initialization:
+   - Displays "WELCOME" and initializes all sensors.
+   - Waits for alcohol sensor stabilization before allowing start.
+
+2. Driver Impairment Detection:
+   - When the start button is pressed, the system reads alcohol levels.
+   - If above threshold, it triggers a buzzer and disables the motor (vehicle).
+
+3. Vehicle Movement Analysis:
+   - Uses accelerometer to monitor X/Y-axis acceleration.
+   - Triggers alarm and stops the vehicle if sudden impact or sharp movement is detected.
+
+4. Remote Alerts via Telegram:
+   - Sends location-based alerts when accident or alcohol detection occurs.
+   - Allows remote commands like /led_on, /led_off, and /state.
+
+TELEGRAM BOT INTEGRATION:
+- Send alerts with Google Maps link on accident detection.
+- Supports remote control of GPIO pins (LED example).
+- Authorized user access only via CHAT_ID filtering.
+
+CODE OVERVIEW:
+
+Arduino Code:
+- Initializes sensors and LCD.
+- Reads alcohol sensor value at startup.
+- Checks for high acceleration values to detect accidents.
+- Sends serial messages for ESP32 to relay to Telegram.
+
+ESP32 Code:
+- Connects to Wi-Fi.
+- Listens for Telegram bot commands.
+- Sends alerts and location links via Telegram API.
+- Handles serial input from Arduino for incident reporting.
+
+FUTURE ENHANCEMENTS:
+- Add GSM module for SMS alerts where internet is not available.
+- Use more accurate electrochemical alcohol sensors.
+- Implement voice alerts or emergency calling functionality.
+- Integrate cloud platforms like Firebase or Blynk for data logging.
+- Add SOS button for manual emergency triggering.
+
+REFERENCES:
+1. Muhammad Ahmad Baballe (2022). Accident Detection and Alerting Systems: A Study, Nigerian Defence Academy.
+2. Bruno Fernandes et al. (2016). Automatic accident detection with multi-modal alert system implementation for ITS.
+3. Akshay Agrawal et al. (2013). Accident detection system application.
+4. Vaishali Shrivastava, Manasi Gyanchandani (2020). A Review Paper on Pre and Post Accident Detection and Alert System.
+
+LICENSE:
+This project is open-source under the MIT License. Feel free to modify and distribute it.
