@@ -1,0 +1,128 @@
+#include <LiquidCrystal.h> 
+#define alc A0 
+#define stb A1 // connect normal push button (it acts as a start button) 
+#define motor 7 
+#define bz 5 
+#define hst A1 
+#include <Wire.h> 
+#include <Adafruit_Sensor.h> 
+#include <Adafruit_ADXL345_U.h> 
+Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345); 
+#include <TinyGPS.h> 
+TinyGPS gps; 
+float flat=0, flon=0; 
+const int rs =8, en =9, d4 =10, d5 =11, d6 =12, d7 =13; 
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7); 
+int gval=0; 
+int vhs=0; 
+void read_gps(){ 
+    bool newData = false; 
+    unsigned long chars; 
+    unsigned short sentences, failed; 
+    for (unsigned long start = millis(); millis() - start < 1000;){ 
+        while (Serial.available()){ 
+            char c = Serial.read(); 
+            if (gps.encode(c)) 
+            newData = true; 
+        } 
+    } 
+    if (newData){ 
+        unsigned long age; 
+        gps.f_get_position(&flat,&flon,&age); 
+        } 
+} 
+int aval; 
+void setup(){ 
+    //mySerial.begin(115200); 
+    Serial.begin(9600); 
+    accel.begin(); 
+    lcd.begin(16, 2); 
+    lcd.print(" WELCOME"); 
+    lcd.setCursor(0,1); 
+    lcd.print("INITIALIZING"); 
+    do{ 
+    aval=analogRead(alc); 
+    lcd.setCursor(13,1); 
+    lcd.print(" "); 
+    lcd.setCursor(13,1); 
+    lcd.print(aval); 
+    } 
+    while(aval>750); 
+    lcd.clear(); 
+    lcd.print("INITIALIZED"); 
+    Serial.println("AT"); 
+    delay(1500); 
+    Serial.println("AT+CMGF=1"); 
+    delay(500); 
+    pinMode(stb,INPUT_PULLUP); 
+    pinMode(bz,OUTPUT); 
+    pinMode(motor,OUTPUT); 
+    pinMode(alc,INPUT); 
+    pinMode(hst,INPUT_PULLUP); 
+    digitalWrite(bz,0); 
+    digitalWrite(motor,0); 
+} 
+void loop(){ 
+    if(vhs==0){ 
+        lcd.setCursor(0,1) 
+        lcd.print("PLS Start"); 
+    } 
+    if(digitalRead(stb)==0){ 
+        lcd.clear(); 
+        lcd.print("checking alc.."); 
+        delay(3000); 
+        if(analogRead(alc)<800){ 
+            lcd.clear(); 
+            lcd.print("ALC NORMAL "); 
+            digitalWrite(motor,1); 
+            delay(2000); 
+            vhs=1; 
+        } 
+        else{ 
+            lcd.clear(); 
+            lcd.print("Driver alcoholic "); 
+            digitalWrite(bz,1); 
+            digitalWrite(motor,0); 
+            delay(2000); 
+            digitalWrite(bz,0); 
+            } 
+    } 
+    if(vhs==1){ 
+        sensors_event_t event; 
+        accel.getEvent(&event); 
+        int xval=event.acceleration.x; 
+        int yval=event.acceleration.y; 
+        gval=analogRead(alc); 
+        lcd.clear(); 
+        lcd.setCursor(0,0); 
+        lcd.print("A:" + String(gval) + " X:"+ String(xval) + " Y:" + String(yval)); 
+        delay(500); 
+        //upload_iot(gval,ebval,hst,xval,yval); 
+        if(xval>5 || xval<-5 || yval>5 || yval<-5){ 
+            digitalWrite(bz,1); 
+            digitalWrite(motor,0); 
+            lcd.clear(); 
+            lcd.setCursor(0,1); 
+            lcd.print("ACCIDENT..."); 
+            Serial.println("Accident 
+            detected,https://www.google.com/maps/search/?api=1&query=" + 
+String(16.4949)+ "," + 
+            String(80.4991) +"^0"); 
+            while(1); 
+        } 
+        if(gval>500){ 
+            digitalWrite(bz,1); 
+            lcd.clear(); 
+            lcd.print("Driver alcoholic "); 
+            lcd.setCursor(0,1); 
+            lcd.print("VEHICLE STOPPED"); 
+            Serial.println("driver Alcoholic 
+            ,https://www.google.com/maps/search/?api=1&query=" + 
+String(16.4949)+ "," + 
+            String(80.4991) +"^0"); 
+            digitalWrite(motor,0); 
+            digitalWrite(bz,0); 
+            while(1); 
+        } 
+    } 
+} 
